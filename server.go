@@ -28,7 +28,8 @@ func main() {
 
 	//Api pour l'étudiant
 	etudiantApi := api.Group("/etudiant")
-	etudiantApi.POST("/change/password", etudiantController.ChangePassword)
+	etudiantApi.PUT("/change/password", etudiantController.ChangePassword)
+	etudiantApi.PUT("/change/informations", etudiantController.ChangeInformations)
 
 	etudiantApi.GET("/semestres", semestreController.Find)
 	etudiantApi.POST("/semestres", semestreController.Add)
@@ -49,5 +50,6 @@ func main() {
 
 	go new(metiers.ScanRssMetier).Start()
 
-	e.Logger.Fatal(e.Start(":1330"))
+	//e.AutoTLSManager.Cache = autocert.DirCache("/var/www/.cache")
+	e.Logger.Fatal(e.Start(":1330"))//, "/usr/local/opt/go@1.8/libexec/src/crypto/tls/cert.pem", "/usr/local/opt/go@1.8/libexec/src/crypto/tls/key.pem"))
 }

@@ -30,6 +30,26 @@ func (*EtudiantDao) ChangePassword(client *elastic.Client, idEtudiant string, ne
 	return nil
 }
 
+func (*EtudiantDao) ChangeInformatios(client *elastic.Client, idEtudiant string, informationsStudent *models.InformationStudent) error {
+	ctx := context.Background()
+
+	if updated, err := client.Update().
+		Index(index).
+		Type("students").
+		Id(idEtudiant).
+		Script(elastic.NewScriptInline("" +
+		"ctx._source.nom = params.nom; " +
+		"ctx._source.prenom = params.prenom;").
+		Lang("painless").
+		Param("prenom", informationsStudent.Prenom).
+		Param("nom", informationsStudent.Nom)).
+		Do(ctx); updated == nil || err != nil {
+		return errors.New("Erreur lors de la modification de vos informations")
+	}
+
+	return nil
+}
+
 func (*EtudiantDao) AddSemestre(client *elastic.Client, idEtudiant string, semestre *models.Semestre) error {
 	ctx := context.Background()
 

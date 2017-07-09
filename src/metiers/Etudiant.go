@@ -183,3 +183,27 @@ func (*EtudiantMetier) ChangePassword(client *elastic.Client, idEtudiant string,
 
 	return nil
 }
+
+func (*EtudiantMetier) ChangeInformations(client *elastic.Client, idEtudiant string, informationsStudent *models.InformationStudent) error {
+	if client == nil {
+		return errors.New("Erreur lors de la connexion à notre base de donnée")
+	}
+
+	if len(idEtudiant) == 0 {
+		return errors.New("Erreur lors de la récupération de votre identifiant")
+	}
+
+	if len(informationsStudent.Nom) == 0 {
+		return errors.New("Erreur lors de la récupération de votre nom")
+	}
+
+	if len(informationsStudent.Prenom) == 0 {
+		return errors.New("Erreur lors de la récupération de votre prénom")
+	}
+
+	if err := new(daos.EtudiantDao).ChangeInformatios(client, idEtudiant, informationsStudent); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -34,6 +34,30 @@ func (*EtudiantController) ChangePassword(c echo.Context) error {
 	return c.NoContent(200)
 }
 
+func (*EtudiantController) ChangeInformations(c echo.Context) error {
+	//Création du client
+	client := tools.CreateElasticsearchClient()
+	if client == nil {
+		return c.JSON(403, models.JsonErrorResponse{Error: "Erreur lors de la connexion à notre base de donnée"})
+	}
+
+	//Création et Bind du gérant
+	informationsStudent := new(models.InformationStudent)
+	if err := c.Bind(informationsStudent); err != nil {
+		return c.JSON(403, models.JsonErrorResponse{Error: "Erreur lors de la récupération des informations"})
+	}
+
+	//Récupération du Token
+	jwtToken := &metiers.JwtMetier{}
+	idEtudiant := jwtToken.GetTokenByContext(c)
+
+	if err := new(metiers.EtudiantMetier).ChangeInformations(client, idEtudiant, informationsStudent); err != nil {
+		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})
+	}
+
+	return c.NoContent(200)
+}
+
 func (*EtudiantController) Register(c echo.Context) (err error) {
 
 	//Création du client
