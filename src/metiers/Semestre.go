@@ -8,7 +8,6 @@ import (
 	"github.com/satori/go.uuid"
 	"time"
 	"github.com/asaskevich/govalidator"
-	"strings"
 )
 
 type SemestreMetier struct {}
@@ -48,9 +47,6 @@ func (*SemestreMetier) Add (client *elastic.Client, idEtudiant string, semestre 
 	if len(semestre.Name) == 0 {
 		return errors.New("Vous devez spécifier un nom")
 	}
-
-	//Lower case sur l'url
-	semestre.Url = strings.ToLower(semestre.Url)
 
 	//On regarde si l'url est valide
 	if isUrlValide := govalidator.IsURL(semestre.Url); !isUrlValide {
@@ -115,9 +111,6 @@ func (*SemestreMetier) Update (client *elastic.Client, idEtudiant string, id str
 	if len(newSemestre.Name) == 0 {
 		return errors.New("Vous devez spécifier un nom")
 	}
-
-	//Lower case sur l'url
-	newSemestre.Url = strings.ToLower(newSemestre.Url)
 
 	//On regarde si l'url est valide
 	if isUrlValide := govalidator.IsURL(newSemestre.Url); !isUrlValide {

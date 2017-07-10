@@ -218,6 +218,7 @@ func (*EtudiantDao) Find(client *elastic.Client) ([]*models.Etudiant, error) {
 	results, err := client.Search().
 		Index(index).
 		Type("students").
+		Size(9999).
 		Version(true).
 		Pretty(true).
 		Do(ctx)
