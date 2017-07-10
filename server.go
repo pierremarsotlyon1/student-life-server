@@ -5,7 +5,6 @@ import (
 	"tomuss_server/src/controllers"
 	"github.com/labstack/echo/middleware"
 	"tomuss_server/src/metiers"
-	"golang.org/x/crypto/acme/autocert"
 	"os"
 )
 
@@ -59,7 +58,8 @@ func main() {
 	if env == "dev" {
 		e.Logger.Fatal(e.Start(":1330"))
 	} else{
-		e.AutoTLSManager.Cache = autocert.DirCache("/var/www/Golang-Projects/src/tomuss_server/.cache")
-		e.Logger.Fatal(e.StartAutoTLS(":1330"))
+		//e.AutoTLSManager.Cache = autocert.DirCache("/var/www/Golang-Projects/src/tomuss_server/.cache")
+		//e.Logger.Fatal(e.StartAutoTLS(":1330"))
+		e.Logger.Fatal(e.Start(":1330"))
 	}
 }
