@@ -47,7 +47,7 @@ func (scanRssMetier *ScanRssMetier) scanRss() {
 
 func (scanRssMetier *ScanRssMetier) ThreadEtudiant(client *elastic.Client, etudiants []*models.Etudiant) {
 	etudiantDao := new(daos.EtudiantDao)
-
+	firebaseMetier := new(FirebaseMetier)
 	somethingChange := false
 
 	for _, etudiant := range etudiants {
@@ -104,7 +104,6 @@ func (scanRssMetier *ScanRssMetier) ThreadEtudiant(client *elastic.Client, etudi
 					continue
 				}
 
-
 				//On regarde si l'étudiant a l'ue
 				var ue *models.Ue
 
@@ -154,10 +153,10 @@ func (scanRssMetier *ScanRssMetier) ThreadEtudiant(client *elastic.Client, etudi
 								t := time.Now().UTC().Format(time.RFC3339)
 
 								ue.Notes = append(ue.Notes, models.Note{
-									Guid:    item.Guid,
-									Name:    titles[1],
-									Created: t,//item.PubDate,
-									Note:    notes[0],
+									Guid:         item.Guid,
+									Name:         titles[1],
+									Created:      t, //item.PubDate,
+									Note:         notes[0],
 									Denominateur: denominateur,
 								})
 								somethingChange = true
@@ -181,7 +180,17 @@ func (scanRssMetier *ScanRssMetier) ThreadEtudiant(client *elastic.Client, etudi
 
 		//On update le tableau des semetres de l'étudiant
 		if somethingChange {
-			etudiantDao.UpdateSemestresWithVersion(client, etudiant.Id, etudiant.Source.Semestres, etudiant.Version)
+			//On update en bdd
+			if err := etudiantDao.UpdateSemestresWithVersion(client, etudiant.Id, etudiant.Source.Semestres, etudiant.Version); err == nil {
+				//Si on a bien réussi à update, on envoie une notification sur le mobile
+				if len(etudiant.Source.FcmToken.FcmToken) > 0 {
+					firebaseMetier.SendMessageToTokens([]string{
+						etudiant.Source.FcmToken.FcmToken,
+					}, map[string]string{
+						"msg": "Vous avez une nouvelle note",
+					})
+				}
+			}
 		}
 	}
 }
