@@ -6,13 +6,62 @@ import (
 	"github.com/labstack/echo/middleware"
 	"tomuss_server/src/metiers"
 	"os"
+	"tomuss_server/src/tools"
+	"tomuss_server/src/models"
+	"gopkg.in/olivere/elastic.v5"
+	"time"
+	"context"
+	"encoding/json"
 )
+
+type Message struct {
+	models.HeaderElasticsearch
+	Source struct {
+		Phrase string `json:"message" query:"message" form:"message"`
+		Date string `json:"date" query:"date" form:"date"`
+	} `json:"_source" form:"_source" query:"_source"`
+}
+
+func LoveMessage(c echo.Context) error {
+	//Création du client
+	client := tools.CreateElasticsearchClient()
+	if client == nil {
+		return c.JSON(403, models.JsonErrorResponse{Error: "Erreur lors de la connexion à notre base de donnée"})
+	}
+
+	results, err := client.Search().
+	Index("lovemessage").
+	Type("messages").
+	Query(elastic.NewMatchQuery("date", time.Now().UTC().Format("2006-01-02"))).
+	Pretty(true).
+	Do(context.Background())
+
+	if err != nil {
+		return c.JSON(403, models.JsonErrorResponse{Error: "Erreur lors de la récupération du message du jour"})
+	}
+
+	//On récup le premier compte
+	messageResult := results.Hits.Hits[0]
+	message := new(models.Etudiant)
+
+	bytes, err := json.Marshal(messageResult)
+
+	//On parse le json en objet
+	err_unmarshal := json.Unmarshal(bytes, &message)
+	if err_unmarshal != nil {
+		return c.JSON(403, models.JsonErrorResponse{Error: "Erreur lors de la récupération du message du jour"})
+	}
+
+	return c.JSON(200, message)
+}
 
 func main() {
 	e := echo.New()
 
 	//CORS
 	e.Use(middleware.CORS())
+
+	e.GET("/lovemessage", LoveMessage)
 
 	//Association des routes
 	//Définition des controllers
