@@ -171,7 +171,7 @@ func (*EtudiantDao) GetByEmail(client *elastic.Client, email string) (*models.Et
 	}
 
 	if results.Hits.TotalHits == 0 {
-		return nil, errors.New("Aucun compte avec cet email")
+		return nil, nil
 	}
 
 	//On récup le premier compte
