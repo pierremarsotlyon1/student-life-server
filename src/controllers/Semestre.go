@@ -37,7 +37,6 @@ func (*SemestreController) Add (c echo.Context) error {
 	//On bind
 	semestre := new(models.Semestre)
 	if err := c.Bind(semestre); err != nil {
-		println(err.Error())
 		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})
 	}
 
@@ -48,7 +47,6 @@ func (*SemestreController) Add (c echo.Context) error {
 	}
 
 	if err := new(metiers.SemestreMetier).Add(client, idEtudiant, semestre); err != nil {
-		println(err.Error())
 		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})
 	}
 

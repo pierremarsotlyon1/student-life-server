@@ -6,6 +6,9 @@ import (
 	"errors"
 	"tomuss_server/src/daos"
 	"github.com/satori/go.uuid"
+	"time"
+	"github.com/asaskevich/govalidator"
+	"strings"
 )
 
 type SemestreMetier struct {}
@@ -46,6 +49,14 @@ func (*SemestreMetier) Add (client *elastic.Client, idEtudiant string, semestre 
 		return errors.New("Vous devez spécifier un nom")
 	}
 
+	//Lower case sur l'url
+	semestre.Url = strings.ToLower(semestre.Url)
+
+	//On regarde si l'url est valide
+	if isUrlValide := govalidator.IsURL(semestre.Url); !isUrlValide {
+		return errors.New("L'url n'est pas au bon format")
+	}
+
 	//On récupère l'étudiant
 	etudiant, err := new(EtudiantMetier).GetById(client, idEtudiant)
 
@@ -71,6 +82,9 @@ func (*SemestreMetier) Add (client *elastic.Client, idEtudiant string, semestre 
 
 	//On génère l'id
 	semestre.Id = uuid.NewV4().String()
+
+	//On ajoute la date de création
+	semestre.Created = time.Now().UTC().Format(time.RFC3339)
 
 	//On ajoute le semestre à l'étudiant
 	if err := new(daos.EtudiantDao).AddSemestre(client, idEtudiant, semestre); err != nil {
@@ -100,6 +114,14 @@ func (*SemestreMetier) Update (client *elastic.Client, idEtudiant string, id str
 
 	if len(newSemestre.Name) == 0 {
 		return errors.New("Vous devez spécifier un nom")
+	}
+
+	//Lower case sur l'url
+	newSemestre.Url = strings.ToLower(newSemestre.Url)
+
+	//On regarde si l'url est valide
+	if isUrlValide := govalidator.IsURL(newSemestre.Url); !isUrlValide {
+		return errors.New("L'url n'est pas au bon format")
 	}
 
 	//On récupère l'étudiant

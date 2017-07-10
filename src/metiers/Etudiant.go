@@ -6,6 +6,8 @@ import (
 	"errors"
 	"tomuss_server/src/daos"
 	"golang.org/x/crypto/bcrypt"
+	"strings"
+	"github.com/asaskevich/govalidator"
 )
 
 type EtudiantMetier struct {}
@@ -27,7 +29,15 @@ func (*EtudiantMetier) Login (client *elastic.Client, login *models.Login) (*mod
 		return nil, errors.New("Erreur lors de la récupération de votre mot de passe")
 	}
 
-	etudiant, err := new(daos.EtudiantDao).GetByEmail(client, login.Email)
+	//Lowercase sur email
+	emailLower := strings.ToLower(login.Email)
+
+	//On regarde si c'est un email valide
+	if isEmail := govalidator.IsEmail(emailLower); !isEmail {
+		return nil, errors.New("L'email n'est pas au bon format")
+	}
+
+	etudiant, err := new(daos.EtudiantDao).GetByEmail(client, emailLower)
 
 	if err != nil {
 		return nil, err
@@ -90,6 +100,14 @@ func (*EtudiantMetier) Register (client *elastic.Client, register *models.Regist
 		return nil, errors.New("Vos mots de passe ne sont pas identique")
 	}
 
+	//On convertit l'email en lowercase
+	emailLower := strings.ToLower(register.Email)
+
+	//On regarde si c'est un email valide
+	if isEmail := govalidator.IsEmail(emailLower); !isEmail {
+		return nil, errors.New("L'email n'est pas au bon format")
+	}
+
 	//On hash le mot de passe
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(register.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -101,7 +119,7 @@ func (*EtudiantMetier) Register (client *elastic.Client, register *models.Regist
 	etudiant.Source.Nom = register.Nom
 	etudiant.Source.Prenom = register.Prenom
 	etudiant.Source.Password = string(passwordHash)
-	etudiant.Source.Email = register.Email
+	etudiant.Source.Email = emailLower
 
 	err = etudiantDao.Add(client, etudiant)
 

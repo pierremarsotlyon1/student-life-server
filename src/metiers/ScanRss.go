@@ -149,13 +149,10 @@ func (scanRssMetier *ScanRssMetier) ThreadEtudiant(client *elastic.Client, etudi
 							}
 
 							if !find {
-								//On récupère le datetime courant
-								t := time.Now().UTC().Format(time.RFC3339)
-
 								ue.Notes = append(ue.Notes, models.Note{
 									Guid:         item.Guid,
 									Name:         titles[1],
-									Created:      t, //item.PubDate,
+									Created:      time.Now().UTC().Format(time.RFC3339),
 									Note:         notes[0],
 									Denominateur: denominateur,
 								})

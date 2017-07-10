@@ -142,12 +142,12 @@ func (*EtudiantController) Login(c echo.Context) error {
 	//On récupère le compte
 	etudiant, err := etudiantMetier.Login(client, login)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, models.JsonErrorResponse{Error: err.Error()})
+		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})
 	}
 
 	//On regarde si on a bien un compte
 	if etudiant == nil {
-		return c.JSON(http.StatusBadRequest, models.JsonErrorResponse{Error: "Erreur lors de la récupération de votre compte"})
+		return c.JSON(403, models.JsonErrorResponse{Error: "Erreur lors de la récupération de votre compte"})
 	}
 
 	//Création du token
@@ -156,7 +156,7 @@ func (*EtudiantController) Login(c echo.Context) error {
 
 	//On regarde si on a une erreur lors de la génération du token
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, models.JsonErrorResponse{Error: err.Error()})
+		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, models.Token{Token: token.Token})
