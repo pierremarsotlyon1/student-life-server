@@ -30,6 +30,24 @@ func (*EtudiantDao) ChangePassword(client *elastic.Client, idEtudiant string, ne
 	return nil
 }
 
+func (*EtudiantDao) ChangeFcmToken(client *elastic.Client, idEtudiant string, fcmToken *models.FcmToken) error {
+	ctx := context.Background()
+
+	if updated, err := client.Update().
+		Index(index).
+		Type("students").
+		Id(idEtudiant).
+		Script(elastic.NewScriptInline("" +
+		"ctx._source.fcm_token = params.fcmToken ").
+		Lang("painless").
+		Param("fcmToken", fcmToken.FcmToken)).
+		Do(ctx); updated == nil || err != nil {
+		return errors.New("Erreur lors de la modification de votre token fcm")
+	}
+
+	return nil
+}
+
 func (*EtudiantDao) ChangeInformatios(client *elastic.Client, idEtudiant string, informationsStudent *models.InformationStudent) error {
 	ctx := context.Background()
 

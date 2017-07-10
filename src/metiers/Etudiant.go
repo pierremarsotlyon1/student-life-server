@@ -184,6 +184,26 @@ func (*EtudiantMetier) ChangePassword(client *elastic.Client, idEtudiant string,
 	return nil
 }
 
+func (*EtudiantMetier) ChangeFcmToken(client *elastic.Client, idEtudiant string, fcmToken *models.FcmToken) error {
+	if client == nil {
+		return errors.New("Erreur lors de la connexion à notre base de donnée")
+	}
+
+	if len(idEtudiant) == 0 {
+		return errors.New("Erreur lors de la récupération de votre identifiant")
+	}
+
+	if len(fcmToken.FcmToken) == 0 {
+		return errors.New("Erreur lors de la récupération du token")
+	}
+
+	if err := new(daos.EtudiantDao).ChangeFcmToken(client, idEtudiant, fcmToken); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (*EtudiantMetier) ChangeInformations(client *elastic.Client, idEtudiant string, informationsStudent *models.InformationStudent) error {
 	if client == nil {
 		return errors.New("Erreur lors de la connexion à notre base de donnée")
