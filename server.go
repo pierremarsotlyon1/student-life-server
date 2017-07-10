@@ -42,7 +42,7 @@ func LoveMessage(c echo.Context) error {
 
 	//On récup le premier compte
 	messageResult := results.Hits.Hits[0]
-	message := new(models.Etudiant)
+	message := new(Message)
 
 	bytes, err := json.Marshal(messageResult)
 
