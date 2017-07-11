@@ -21,7 +21,7 @@ import (
 type ScanRssMetier struct{}
 
 func (scanRssMetier *ScanRssMetier) Start() {
-	gocron.Every(10).Seconds().Do(scanRssMetier.newScanRss)
+	gocron.Every(10).Minutes().Do(scanRssMetier.newScanRss)
 	gocron.Start()
 	//scanRssMetier.newScanRss()
 }
