@@ -68,9 +68,13 @@ func (*EtudiantMetier) Register (client *elastic.Client, register *models.Regist
 		return nil, errors.New("Erreur lors de la récupération de votre email")
 	}
 
+	//Création de l'objet DAO
 	etudiantDao := new(daos.EtudiantDao)
 
-	etudiant, err := etudiantDao.GetByEmail(client, register.Email)
+	//On convertit l'email en lowercase
+	emailLower := strings.ToLower(register.Email)
+
+	etudiant, err := etudiantDao.GetByEmail(client, emailLower)
 
 	if err != nil {
 		return nil, err
@@ -99,9 +103,6 @@ func (*EtudiantMetier) Register (client *elastic.Client, register *models.Regist
 	if register.Password != register.ConfirmPassword {
 		return nil, errors.New("Vos mots de passe ne sont pas identique")
 	}
-
-	//On convertit l'email en lowercase
-	emailLower := strings.ToLower(register.Email)
 
 	//On regarde si c'est un email valide
 	if isEmail := govalidator.IsEmail(emailLower); !isEmail {
