@@ -67,6 +67,7 @@ func main() {
 	//Définition des controllers
 	etudiantController := new(controllers.EtudiantController)
 	semestreController := new(controllers.SemestreController)
+	bonPlansController := new(controllers.BonPlansController)
 
 	//Gerant Controller sans JWT
 	e.POST("/login", etudiantController.Login)
@@ -86,18 +87,10 @@ func main() {
 	etudiantApi.POST("/semestres", semestreController.Add)
 	etudiantApi.PUT("/semestres/:id", semestreController.Update)
 	etudiantApi.DELETE("/semestres/:id", semestreController.Remove)
-	//semestreEtudiantApi.GET("", etudiantController.Profile)
 
-	//Api pour les annonces
-	/*annonceApi := api.Group("/annonce")
-	annonceApi.GET("", annonceController.Find)
-	annonceApi.GET("/:id", annonceController.Get)
-	annonceApi.POST("", annonceController.Add)
-	annonceApi.DELETE("/:id", annonceController.Delete)
-	annonceApi.PUT("/:id", annonceController.Update)
-
-	//Recherche des annonces par geolocation
-	e.GET("/annonce/search/location", annonceController.SearchByLocation)*/
+	//Api bon plans
+	bonPlansApi := api.Group("/bonplans")
+	bonPlansApi.GET("", bonPlansController.Find)
 
 	go new(metiers.ScanRssMetier).Start()
 
