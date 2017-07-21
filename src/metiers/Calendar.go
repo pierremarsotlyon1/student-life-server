@@ -8,6 +8,7 @@ import (
 	"github.com/PuloV/ics-golang"
 	"fmt"
 	"tomuss_server/src/models"
+	"time"
 )
 
 type CalendarMetier struct{}
@@ -133,8 +134,8 @@ func (*CalendarMetier) ParseIcs(client *elastic.Client, idUser string, urlIcs st
 
 			event.Titre = e.GetSummary()
 			event.Description = e.GetDescription()
-			event.DateDebut = e.GetStart().String()
-			event.DateFin = e.GetEnd().String()
+			event.DateDebut = e.GetStart().Format(time.RFC3339)
+			event.DateFin = e.GetEnd().Format(time.RFC3339)
 
 			events = append(events, event)
 		}
