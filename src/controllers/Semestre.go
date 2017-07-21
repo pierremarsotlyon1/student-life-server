@@ -11,8 +11,7 @@ type SemestreController struct {}
 
 func (*SemestreController) Find(c echo.Context) error {
 	//Récupération du Token
-	jwtToken := &metiers.JwtMetier{}
-	idEtudiant := jwtToken.GetTokenByContext(c)
+	idEtudiant := new(metiers.JwtMetier).GetTokenByContext(c)
 
 	//Création du client
 	client := tools.CreateElasticsearchClient()

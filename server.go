@@ -68,6 +68,7 @@ func main() {
 	etudiantController := new(controllers.EtudiantController)
 	semestreController := new(controllers.SemestreController)
 	bonPlansController := new(controllers.BonPlansController)
+	calendarController := new(controllers.CalendarController)
 
 	//Gerant Controller sans JWT
 	e.POST("/login", etudiantController.Login)
@@ -92,6 +93,13 @@ func main() {
 	bonPlansApi := api.Group("/bonplans")
 	bonPlansApi.GET("", bonPlansController.Find)
 
+	//Api calendar
+	calendarApi := api.Group("/calendar")
+	calendarApi.POST("", calendarController.UpdateUrlIcs)
+	calendarApi.GET("/refresh", calendarController.RefreshEvents)
+	calendarApi.GET("/events", calendarController.FindEvents)
+
+	//Go routine pour scanner les rSS
 	go new(metiers.ScanRssMetier).Start()
 
 	//On regarde comment on démarre le serveur
