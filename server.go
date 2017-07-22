@@ -69,6 +69,8 @@ func main() {
 	semestreController := new(controllers.SemestreController)
 	bonPlansController := new(controllers.BonPlansController)
 	calendarController := new(controllers.CalendarController)
+	suggestionController := new(controllers.SuggestionController)
+	problemeTechniqueController := new(controllers.ProblemeTechniqueController)
 
 	//Gerant Controller sans JWT
 	e.POST("/login", etudiantController.Login)
@@ -97,6 +99,14 @@ func main() {
 	calendarApi := api.Group("/calendar")
 	calendarApi.POST("", calendarController.UpdateUrlIcs)
 	calendarApi.GET("", calendarController.Synchroniser)
+
+	//Suggestion api
+	suggestionApi := api.Group("/suggestion")
+	suggestionApi.POST("", suggestionController.Add)
+
+	//Probleme technique api
+	problemeTechniqueApi := api.Group("/probleme/technique")
+	problemeTechniqueApi.POST("", problemeTechniqueController.Add)
 
 	//Go routine pour scanner les rSS
 	go new(metiers.ScanRssMetier).Start()
