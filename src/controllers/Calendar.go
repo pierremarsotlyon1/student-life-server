@@ -30,24 +30,24 @@ func (*CalendarController) UpdateUrlIcs (c echo.Context) error {
 	return c.NoContent(200)
 }
 
-func (*CalendarController) FindEvents (c echo.Context) error {
+func (*CalendarController) Synchroniser (c echo.Context) error {
 	//Récupération du Token
 	idEtudiant := new(metiers.JwtMetier).GetTokenByContext(c)
 
 	//Création du client
 	client := tools.CreateElasticsearchClient()
 
-	events, err := new(metiers.CalendarMetier).FindEvents(client, idEtudiant)
+	events, err := new(metiers.CalendarMetier).Synchroniser(client, idEtudiant)
 	if err != nil {
 		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})
 	}
 
-	return c.JSON(200, map[string][]models.Event {
+	return c.JSON(200, map[string][]*models.Event {
 		"events": events,
 	})
 }
 
-func (*CalendarController) RefreshEvents (c echo.Context) error {
+/*func (*CalendarController) RefreshEvents (c echo.Context) error {
 	//Récupération du Token
 	idEtudiant := new(metiers.JwtMetier).GetTokenByContext(c)
 
@@ -59,4 +59,4 @@ func (*CalendarController) RefreshEvents (c echo.Context) error {
 	}
 
 	return c.NoContent(200)
-}
+}*/

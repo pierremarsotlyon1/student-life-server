@@ -23,7 +23,7 @@ func (*CalendarDao) UpdateUrlIcs(client *elastic.Client, idUser string, urlIcs s
 	return nil
 }
 
-func (*CalendarDao) RefreshEvents(client *elastic.Client, idUser string, events []*models.Event) error {
+func (*CalendarDao) UpdateEvents(client *elastic.Client, idUser string, events []*models.Event) error {
 	if _, err := client.Update().
 		Index(index).
 		Type("students").

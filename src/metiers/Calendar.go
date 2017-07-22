@@ -6,7 +6,6 @@ import (
 	"github.com/asaskevich/govalidator"
 	"tomuss_server/src/daos"
 	"github.com/PuloV/ics-golang"
-	"fmt"
 	"tomuss_server/src/models"
 	"time"
 )
@@ -41,7 +40,7 @@ func (calendrierMetier *CalendarMetier) UpdateUrlIcs(client *elastic.Client, idU
 	return nil
 }
 
-func (*CalendarMetier) FindEvents(client *elastic.Client, idUser string) ([]models.Event, error) {
+/*func (*CalendarMetier) FindEvents(client *elastic.Client, idUser string) ([]models.Event, error) {
 	if client == nil {
 		return nil, errors.New("Erreur lors de la connexion à notre base de donnée")
 	}
@@ -56,53 +55,57 @@ func (*CalendarMetier) FindEvents(client *elastic.Client, idUser string) ([]mode
 	}
 
 	return events, nil
-}
+}*/
 
-func (calendrierMetier *CalendarMetier) RefreshEvents (client *elastic.Client, idUser string) error {
+func (calendrierMetier *CalendarMetier) Synchroniser (client *elastic.Client, idUser string) ([]*models.Event, error) {
 	if client == nil {
-		return errors.New("Erreur lors de la connexion à notre base de donnée")
+		return nil, errors.New("Erreur lors de la connexion à notre base de donnée")
 	}
 
 	if len(idUser) == 0 {
-		return errors.New("Erreur lors de la récupération de votre identifiant")
+		return nil, errors.New("Erreur lors de la récupération de votre identifiant")
 	}
 
 	//On récupère l'étudiant
 	etudiant, err := new(daos.EtudiantDao).GetById(client, idUser)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if etudiant == nil {
-		return errors.New("Erreur lors de la récupération de votre compte")
+		return nil, errors.New("Erreur lors de la récupération de votre compte")
 	}
 
 	//On regarde si l'étudiant a déjà enregistré l'url de son calendrier
 	if len(etudiant.Source.UrlIcs) == 0 {
-		return errors.New("Vous devez enregistrer l'url de votre calendrier avant de refraichir les events")
+		return nil, errors.New("Vous devez enregistrer l'url de votre calendrier avant de rafraichir les events")
 	}
 
-	//On lance le refresh du calendrier
-	go calendrierMetier.ParseIcs(client, idUser, etudiant.Source.UrlIcs)
+	//On lance une goroutine pour refresh le calendrier
+	events, err := calendrierMetier.ParseIcs(client, idUser, etudiant.Source.UrlIcs)
 
-	return nil
+	if err != nil {
+		return nil, err
+	}
+
+	return events, nil
 }
 
-func (*CalendarMetier) ParseIcs(client *elastic.Client, idUser string, urlIcs string) error {
+func (*CalendarMetier) ParseIcs(client *elastic.Client, idUser string, urlIcs string) ([]*models.Event, error) {
 	if client == nil {
-		return errors.New("Erreur lors de la connexion à notre base de donnée")
+		return nil, errors.New("Erreur lors de la connexion à notre base de donnée")
 	}
 
 	if len(idUser) == 0 {
-		return errors.New("Erreur lors de la récupération de votre identifiant")
+		return nil, errors.New("Erreur lors de la récupération de votre identifiant")
 	}
 
 	if len(urlIcs) == 0 {
-		return errors.New("Erreur lors de la récupération de l'url du calendrier")
+		return nil, errors.New("Erreur lors de la récupération de l'url du calendrier")
 	}
 
 	if !govalidator.IsURL(urlIcs) {
-		return errors.New("L'url du calendrier est mal formatée")
+		return nil, errors.New("L'url du calendrier est mal formatée")
 	}
 
 	//Création du parser
@@ -141,11 +144,12 @@ func (*CalendarMetier) ParseIcs(client *elastic.Client, idUser string, urlIcs st
 		}
 
 		//On update dans le document de l'étudiant
-		new(daos.CalendarDao).RefreshEvents(client, idUser, events)
-	} else {
-		// error
-		fmt.Println(err)
-	}
+		if err := new(daos.CalendarDao).UpdateEvents(client, idUser, events); err != nil {
+			return nil, err
+		}
 
-	return nil
+		return events, nil
+	} else {
+		return nil, errors.New("Erreur lors de la récupération des événements")
+	}
 }

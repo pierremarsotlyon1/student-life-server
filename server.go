@@ -96,8 +96,7 @@ func main() {
 	//Api calendar
 	calendarApi := api.Group("/calendar")
 	calendarApi.POST("", calendarController.UpdateUrlIcs)
-	calendarApi.GET("/refresh", calendarController.RefreshEvents)
-	calendarApi.GET("/events", calendarController.FindEvents)
+	calendarApi.GET("", calendarController.Synchroniser)
 
 	//Go routine pour scanner les rSS
 	go new(metiers.ScanRssMetier).Start()
