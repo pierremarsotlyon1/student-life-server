@@ -112,7 +112,7 @@ func (*EtudiantController) Register(c echo.Context) (err error) {
 
 	//Création du token
 	m := &metiers.JwtMetier{}
-	token, err := m.Encode(etudiant)
+	token, err := m.Encode(etudiant.Id)
 
 	//On regarde si on a une erreur lors de la génération du token
 	if err != nil {
@@ -152,7 +152,7 @@ func (*EtudiantController) Login(c echo.Context) error {
 
 	//Création du token
 	m := &metiers.JwtMetier{}
-	token, err := m.Encode(etudiant)
+	token, err := m.Encode(etudiant.Id)
 
 	//On regarde si on a une erreur lors de la génération du token
 	if err != nil {

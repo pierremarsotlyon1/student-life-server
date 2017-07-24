@@ -31,20 +31,15 @@ func (*JwtMetier) GetTokenByContext (c echo.Context) string {
 	return claims["id"].(string)
 }
 
-func (*JwtMetier) Encode (etudiant *models.Etudiant) (*models.Token, error) {
-	//On regarde si on a l'objet gerant
-	if etudiant == nil {
-		return nil, errors.New("Erreur lors de la récupération des informations")
-	}
-
+func (*JwtMetier) Encode (id string) (*models.Token, error) {
 	//On regarde si on a un ID
-	if len(etudiant.Id) == 0 {
+	if len(id) == 0 {
 		return nil, errors.New("Erreur lors de la récupération des informations")
 	}
 
 	//On génère le token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id": etudiant.Id,
+		"id": id,
 	})
 
 	//On regarde si on a un token
