@@ -72,8 +72,7 @@ func (*EtudiantController) ChangeInformations(c echo.Context) error {
 	}
 
 	//Récupération du Token
-	jwtToken := &metiers.JwtMetier{}
-	idEtudiant := jwtToken.GetTokenByContext(c)
+	idEtudiant := new(metiers.JwtMetier).GetTokenByContext(c)
 
 	if err := new(metiers.EtudiantMetier).ChangeInformations(client, idEtudiant, informationsStudent); err != nil {
 		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})

@@ -71,10 +71,15 @@ func main() {
 	calendarController := new(controllers.CalendarController)
 	suggestionController := new(controllers.SuggestionController)
 	problemeTechniqueController := new(controllers.ProblemeTechniqueController)
+	entrepriseController := new(controllers.EntrepriseController)
 
-	//Gerant Controller sans JWT
+	//Etudiant auth sans JWT
 	e.POST("/login", etudiantController.Login)
 	e.POST("/register", etudiantController.Register)
+
+	//Entreprise auth sans JWT
+	e.POST("/entreprise/login", entrepriseController.Login)
+	e.POST("/entreprise/register", entrepriseController.Register)
 
 	//Définition de l'api de base avec restriction JWT
 	api := e.Group("/api")
