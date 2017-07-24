@@ -7,12 +7,13 @@ import (
 	"errors"
 )
 
-type ProblemeTechniqueDao struct {}
+type ProblemeTechniqueDao struct{}
 
-func (*ProblemeTechniqueDao) Add(client *elastic.Client, problemeTechnique *models.ProblemeTechnique) error {
+func (*ProblemeTechniqueDao) Add(client *elastic.Client, idEtudiant string, problemeTechnique *models.ProblemeTechnique) error {
 	result, err := client.Index().
 		Index(index).
 		Type("problemetechnique").
+		Parent(idEtudiant).
 		BodyJson(problemeTechnique.Source).
 		Pretty(true).
 		Do(context.Background())

@@ -120,6 +120,7 @@ func main() {
 	bonPlansEntreprise := entrepriseApi.Group("/bonsplans")
 	bonPlansEntreprise.POST("", bonPlansController.Add)
 	bonPlansEntreprise.GET("", bonPlansController.FindByEntreprise)
+	bonPlansEntreprise.DELETE("/:id", bonPlansController.Remove)
 
 	//Go routine pour scanner les rSS
 	go new(metiers.ScanRssMetier).Start()

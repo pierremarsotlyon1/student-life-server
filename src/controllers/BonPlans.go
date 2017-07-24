@@ -77,3 +77,17 @@ func (*BonPlansController) Add (c echo.Context) error {
 		"bon_plan": bonplans,
 	})
 }
+
+func (*BonPlansController) Remove (c echo.Context) error {
+	client := tools.CreateElasticsearchClient()
+
+	idEntreprise := new(metiers.JwtMetier).GetTokenByContext(c)
+
+	idBonPlan := c.Param("id")
+
+	if err := new(metiers.BonPlansMetier).Remove(client, idEntreprise, idBonPlan); err != nil {
+		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})
+	}
+
+	return c.NoContent(200)
+}

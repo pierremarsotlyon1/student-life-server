@@ -76,19 +76,18 @@ func (*BonPlansMetier) Add (client *elastic.Client, idEntreprise string, bonplan
 	}
 
 	//On affecte les propriétés
-	bonplan.Source.IdEnreprise = idEntreprise
 	bonplan.Source.NomEnreprise = entreprise.Source.NomEntreprise
 	bonplan.Source.LogoEntreprise = entreprise.Source.LogoEntreprise
 	bonplan.Source.Created = time.Now().UTC().Format(time.RFC3339)
 
-	if err := new(daos.BonPlansDao).Add(client, bonplan); err != nil {
+	if err := new(daos.BonPlansDao).Add(client, idEntreprise, bonplan); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (*BonPlansMetier) Remove (client *elastic.Client, idBonPlan string) error {
+func (*BonPlansMetier) Remove (client *elastic.Client, idEntreprise string, idBonPlan string) error {
 	if client == nil {
 		return errors.New("Erreur lors de la connexion à notre base de donnée")
 	}
@@ -97,7 +96,11 @@ func (*BonPlansMetier) Remove (client *elastic.Client, idBonPlan string) error {
 		return errors.New("Erreur lors de la récupération de l'identifiant du bon plan")
 	}
 
-	if err := new(daos.BonPlansDao).Remove(client, idBonPlan); err != nil {
+	if len(idEntreprise) == 0 {
+		return errors.New("Erreur lors de la récupération de votre identifiant")
+	}
+
+	if err := new(daos.BonPlansDao).Remove(client, idEntreprise, idBonPlan); err != nil {
 		return err
 	}
 

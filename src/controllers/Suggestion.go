@@ -5,7 +5,6 @@ import (
 	"tomuss_server/src/metiers"
 	"tomuss_server/src/tools"
 	"tomuss_server/src/models"
-	"fmt"
 )
 
 type SuggestionController struct {}
@@ -20,9 +19,7 @@ func (*SuggestionController) Add (c echo.Context) error {
 	//On bind la suggestion
 	suggestion := new(models.Suggestion)
 
-	fmt.Println("mdmsqd")
 	if err := c.Bind(suggestion); err != nil {
-		fmt.Println(err.Error())
 		return c.JSON(403, models.JsonErrorResponse{Error: "Erreur lors de la récupération de votre suggestion"})
 	}
 

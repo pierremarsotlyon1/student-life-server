@@ -7,7 +7,6 @@ import (
 	"errors"
 	"encoding/json"
 	"time"
-	"fmt"
 )
 
 type BonPlansDao struct{}
@@ -52,20 +51,19 @@ func (*BonPlansDao) Find(client *elastic.Client, offset int) ([]*models.BonPlan,
 }
 
 func (*BonPlansDao) FindByEntreprise(client *elastic.Client, idEntreprise string, offset int) ([]*models.BonPlan, error) {
-	rangeQuery := elastic.NewRangeQuery("date_debut").Gte(time.Now().UTC().Format("2006-01-02"))
-	matchQuery := elastic.NewMatchQuery("id_entreprise", idEntreprise)
+	hasParentQuery := elastic.NewMatchQuery("_id", idEntreprise)
+	matchQuery := elastic.NewHasParentQuery("entreprise", hasParentQuery)
 
-	globalQuery := elastic.NewBoolQuery().Must(matchQuery, rangeQuery)
 	results, err := client.Search().
 		Index(index).
 		Type("bonplans").
 		From(offset).
-		Query(globalQuery).
+		Query(matchQuery).
+		Sort("date_debut", false).
 		Pretty(true).
 		Do(context.Background())
 
 	if err != nil || results == nil {
-		fmt.Println(err.Error())
 		return nil, errors.New("Erreur lors de la récupération des bon plans")
 	}
 
@@ -79,28 +77,26 @@ func (*BonPlansDao) FindByEntreprise(client *elastic.Client, idEntreprise string
 		bytes, err := json.Marshal(hit)
 
 		if err != nil {
-			fmt.Println(err.Error())
 			return nil, errors.New("Erreur lors de la récupération des bon plans")
 		}
 
 		bonplan := new(models.BonPlan)
 
 		if err := json.Unmarshal(bytes, bonplan); err != nil {
-			fmt.Println(err.Error())
 			return nil, errors.New("Erreur lors de la récupération des bon plans")
 		}
 
 		bonplans = append(bonplans, bonplan)
 	}
 
-	fmt.Println(bonplans)
 	return bonplans, nil
 }
 
-func (*BonPlansDao) Add(client *elastic.Client, bonplan *models.BonPlan) error {
+func (*BonPlansDao) Add(client *elastic.Client, idEntreprise string, bonplan *models.BonPlan) error {
 	result, err := client.Index().
 		Index(index).
 		Type("bonplans").
+		Parent(idEntreprise).
 		BodyJson(bonplan.Source).
 		Pretty(true).
 		Do(context.Background())
@@ -112,14 +108,17 @@ func (*BonPlansDao) Add(client *elastic.Client, bonplan *models.BonPlan) error {
 	bonplan.Id = result.Id
 	bonplan.Type = result.Type
 	bonplan.Version = result.Version
+	bonplan.Index = result.Index
+	bonplan.Parent = idEntreprise
 
 	return nil
 }
 
-func (*BonPlansDao) Remove(client *elastic.Client, idBonPlan string) error {
+func (*BonPlansDao) Remove(client *elastic.Client, idEntreprise string, idBonPlan string) error {
 	_, err := client.Delete().
 		Index(index).
 		Type("bonplans").
+		Parent(idEntreprise).
 		Id(idBonPlan).
 		Pretty(true).
 		Do(context.Background())

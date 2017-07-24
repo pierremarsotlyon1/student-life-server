@@ -22,11 +22,8 @@ func (*SuggestionMetier) Add (client *elastic.Client, idEtudiant string, suggest
 		return errors.New("Erreur lors de la récupération de votre suggestion")
 	}
 
-	//On attribut l'id de l'étudiant à la suggestion
-	suggestion.Source.IdEtudiant = idEtudiant
-
 	//On ajoute la suggestion
-	if err := new(daos.SuggestionDao).Add(client, suggestion); err != nil {
+	if err := new(daos.SuggestionDao).Add(client, idEtudiant, suggestion); err != nil {
 		return err
 	}
 

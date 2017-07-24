@@ -9,10 +9,11 @@ import (
 
 type SuggestionDao struct{}
 
-func (*SuggestionDao) Add(client *elastic.Client, suggestion *models.Suggestion) error {
+func (*SuggestionDao) Add(client *elastic.Client, idEtudiant string, suggestion *models.Suggestion) error {
 	result, err := client.Index().
 		Index(index).
 		Type("suggestion").
+		Parent(idEtudiant).
 		BodyJson(suggestion.Source).
 		Pretty(true).
 		Do(context.Background())

@@ -22,11 +22,8 @@ func (*ProblemeTechniqueMetier) Add (client *elastic.Client, idEtudiant string, 
 		return errors.New("Erreur lors de la récupération de votre problème technique")
 	}
 
-	//On attribut l'id de l'étudiant au problème technique
-	problemeTechnique.Source.IdEtudiant = idEtudiant
-
 	//On ajoute le probleme technique
-	if err := new(daos.ProblemeTechniqueDao).Add(client, problemeTechnique); err != nil {
+	if err := new(daos.ProblemeTechniqueDao).Add(client, idEtudiant, problemeTechnique); err != nil {
 		return err
 	}
 
