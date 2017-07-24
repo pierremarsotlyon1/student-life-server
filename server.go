@@ -113,6 +113,14 @@ func main() {
 	problemeTechniqueApi := api.Group("/probleme/technique")
 	problemeTechniqueApi.POST("", problemeTechniqueController.Add)
 
+	entrepriseApi := api.Group("/entreprise")
+	entrepriseApi.GET("", entrepriseController.Profile)
+	entrepriseApi.PUT("", entrepriseController.UpdateInformations)
+
+	bonPlansEntreprise := entrepriseApi.Group("/bonsplans")
+	bonPlansEntreprise.POST("", bonPlansController.Add)
+	bonPlansEntreprise.GET("", bonPlansController.FindByEntreprise)
+
 	//Go routine pour scanner les rSS
 	go new(metiers.ScanRssMetier).Start()
 

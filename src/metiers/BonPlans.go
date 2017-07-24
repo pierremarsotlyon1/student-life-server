@@ -63,6 +63,18 @@ func (*BonPlansMetier) Add (client *elastic.Client, idEntreprise string, bonplan
 		return errors.New("Erreur lors de la récupération du compte de l'entreprise")
 	}
 
+	if len(bonplan.Source.DateDebut) == 0 {
+		return errors.New("Vous devez saisir une date de fin")
+	}
+
+	if len(bonplan.Source.DateFin) == 0 {
+		return errors.New("Vous devez saisir une date de fin")
+	}
+
+	if len(bonplan.Source.Title) == 0 {
+		return errors.New("Vous devez saisir un titre")
+	}
+
 	//On affecte les propriétés
 	bonplan.Source.IdEnreprise = idEntreprise
 	bonplan.Source.NomEnreprise = entreprise.Source.NomEntreprise

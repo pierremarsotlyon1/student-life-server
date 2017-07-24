@@ -7,6 +7,7 @@ import (
 	"errors"
 	"encoding/json"
 	"time"
+	"fmt"
 )
 
 type BonPlansDao struct{}
@@ -64,6 +65,7 @@ func (*BonPlansDao) FindByEntreprise(client *elastic.Client, idEntreprise string
 		Do(context.Background())
 
 	if err != nil || results == nil {
+		fmt.Println(err.Error())
 		return nil, errors.New("Erreur lors de la récupération des bon plans")
 	}
 
@@ -77,18 +79,21 @@ func (*BonPlansDao) FindByEntreprise(client *elastic.Client, idEntreprise string
 		bytes, err := json.Marshal(hit)
 
 		if err != nil {
+			fmt.Println(err.Error())
 			return nil, errors.New("Erreur lors de la récupération des bon plans")
 		}
 
 		bonplan := new(models.BonPlan)
 
 		if err := json.Unmarshal(bytes, bonplan); err != nil {
+			fmt.Println(err.Error())
 			return nil, errors.New("Erreur lors de la récupération des bon plans")
 		}
 
 		bonplans = append(bonplans, bonplan)
 	}
 
+	fmt.Println(bonplans)
 	return bonplans, nil
 }
 

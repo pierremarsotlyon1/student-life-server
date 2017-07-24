@@ -10,9 +10,9 @@ import (
 	"strings"
 )
 
-type EntrepriseMetier struct {}
+type EntrepriseMetier struct{}
 
-func (*EntrepriseMetier) Add (client *elastic.Client, registerEntreprise *models.RegisterEntreprise) (*models.Entreprise, error) {
+func (*EntrepriseMetier) Add(client *elastic.Client, registerEntreprise *models.RegisterEntreprise) (*models.Entreprise, error) {
 	if client == nil {
 		return nil, errors.New("Erreur lors de la connexion à notre base de donnée")
 	}
@@ -71,7 +71,7 @@ func (*EntrepriseMetier) Add (client *elastic.Client, registerEntreprise *models
 	return entreprise, nil
 }
 
-func (entrepriseMetier *EntrepriseMetier) Login (client *elastic.Client, login *models.Login) (*models.Entreprise, error) {
+func (entrepriseMetier *EntrepriseMetier) Login(client *elastic.Client, login *models.Login) (*models.Entreprise, error) {
 	if client == nil {
 		return nil, errors.New("Erreur lors de la connexion à notre base de donnée")
 	}
@@ -118,7 +118,7 @@ func (entrepriseMetier *EntrepriseMetier) Login (client *elastic.Client, login *
 	return entreprise, nil
 }
 
-func (*EntrepriseMetier) GetById (client *elastic.Client, idEntreprise string) (*models.Entreprise, error) {
+func (*EntrepriseMetier) GetById(client *elastic.Client, idEntreprise string) (*models.Entreprise, error) {
 	if client == nil {
 		return nil, errors.New("Erreur lors de la connexion à notre base de donnée")
 	}
@@ -139,7 +139,7 @@ func (*EntrepriseMetier) GetById (client *elastic.Client, idEntreprise string) (
 	return entreprise, nil
 }
 
-func (*EntrepriseMetier) GetByEmail (client *elastic.Client, email string) (*models.Entreprise, error) {
+func (*EntrepriseMetier) GetByEmail(client *elastic.Client, email string) (*models.Entreprise, error) {
 	if client == nil {
 		return nil, errors.New("Erreur lors de la connexion à notre base de donnée")
 	}
@@ -164,18 +164,52 @@ func (*EntrepriseMetier) GetByEmail (client *elastic.Client, email string) (*mod
 	return entreprise, nil
 }
 
-func (entrepriseMetier *EntrepriseMetier) UpdateInformations (client *elastic.Client, idEntreprise string, entreprise *models.Entreprise) error {
+func (entrepriseMetier *EntrepriseMetier) UpdateInformations(client *elastic.Client, idEntreprise string, entreprise *models.Entreprise) (*models.Entreprise, error) {
 	if client == nil {
-		return errors.New("Erreur lors de la connexion à notre base de donnée")
+		return nil, errors.New("Erreur lors de la connexion à notre base de donnée")
 	}
 
 	if len(idEntreprise) == 0 {
-		return errors.New("Erreur lors de la récupération de votre identifiant")
+		return nil, errors.New("Erreur lors de la récupération de votre identifiant")
 	}
 
-	if err := new(daos.EntrepriseDao).UpdateInformations(client, idEntreprise, entreprise); err != nil {
-		return err
+	//On modifie le document entreprise
+	entrepriseDao := new(daos.EntrepriseDao)
+	if err := entrepriseDao.UpdateInformations(client, idEntreprise, entreprise); err != nil {
+		return nil, err
 	}
 
-	return nil
+	//On récupère le nouveau document entreprise
+	entrepriseNew, err := entrepriseDao.GetById(client, idEntreprise)
+	if err != nil {
+		return nil, err
+	}
+
+	if entrepriseNew == nil {
+		return nil, errors.New("Vos informations ont bien été modifiées mais nous avons eu un problème lors de la récupération")
+	}
+	return entrepriseNew, nil
+}
+
+func (entrepriseMetier *EntrepriseMetier) Profile(client *elastic.Client, idEntreprise string) (*models.Entreprise, error) {
+	if client == nil {
+		return nil, errors.New("Erreur lors de la connexion à notre base de donnée")
+	}
+
+	if len(idEntreprise) == 0 {
+		return nil, errors.New("Erreur lors de la récupération de votre identifiant")
+	}
+
+	//On récupère le document entreprise
+	entreprise, err := new(daos.EntrepriseDao).GetById(client, idEntreprise)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if entreprise == nil {
+		return nil, errors.New("Erreur lors de la récupération de votre profile")
+	}
+
+	return entreprise, nil
 }

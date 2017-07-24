@@ -73,6 +73,22 @@ func (*EntrepriseController) Login (c echo.Context) error {
 	return c.JSON(200, models.Token{Token: token.Token})
 }
 
+func (*EntrepriseController) Profile (c echo.Context) error {
+	client := tools.CreateElasticsearchClient()
+
+	idEntreprise := new(metiers.JwtMetier).GetTokenByContext(c)
+
+	entreprise, err := new(metiers.EntrepriseMetier).Profile(client, idEntreprise)
+
+	if err != nil {
+		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})
+	}
+
+	return c.JSON(200, map[string]*models.Entreprise {
+		"entreprise": entreprise,
+	})
+}
+
 func (*EntrepriseController) UpdateInformations (c echo.Context) error {
 	client := tools.CreateElasticsearchClient()
 
@@ -84,9 +100,12 @@ func (*EntrepriseController) UpdateInformations (c echo.Context) error {
 
 	idEntreprise := new(metiers.JwtMetier).GetTokenByContext(c)
 
-	if err := new(metiers.EntrepriseMetier).UpdateInformations(client, idEntreprise, entreprise); err != nil {
+	entrepriseNew, err := new(metiers.EntrepriseMetier).UpdateInformations(client, idEntreprise, entreprise)
+	if err != nil {
 		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})
 	}
 
-	return c.NoContent(200)
+	return c.JSON(200, map[string]*models.Entreprise {
+		"entreprise": entrepriseNew,
+	})
 }
