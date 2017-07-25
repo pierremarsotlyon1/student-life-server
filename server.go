@@ -92,6 +92,7 @@ func main() {
 
 	//Api pour l'étudiant
 	etudiantApi := api.Group("/etudiant")
+	etudiantApi.GET("", etudiantController.Profile)
 	etudiantApi.PUT("/fcm", etudiantController.ChangeFcmToken)
 	etudiantApi.PUT("/change/password", etudiantController.ChangePassword)
 	etudiantApi.PUT("/change/informations", etudiantController.ChangeInformations)

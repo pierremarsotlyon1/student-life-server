@@ -58,6 +58,27 @@ func (*EtudiantController) ChangeFcmToken(c echo.Context) error {
 	return c.NoContent(200)
 }
 
+func (*EtudiantController) Profile(c echo.Context) error {
+	//Création du client
+	client := tools.CreateElasticsearchClient()
+
+	//Récupération du Token
+	idEtudiant := new(metiers.JwtMetier).GetTokenByContext(c)
+
+	etudiant, err := new(metiers.EtudiantMetier).GetById(client, idEtudiant)
+	if err != nil {
+		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})
+	}
+
+	if etudiant == nil {
+		return c.JSON(403, models.JsonErrorResponse{Error: "Erreur lors de la récupération de votre profile"})
+	}
+
+	return c.JSON(200, map[string]*models.Etudiant {
+		"profile": etudiant,
+	})
+}
+
 func (*EtudiantController) ChangeInformations(c echo.Context) error {
 	//Création du client
 	client := tools.CreateElasticsearchClient()
