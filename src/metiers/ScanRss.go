@@ -84,7 +84,7 @@ func (scanRssMetier *ScanRssMetier) newScanRss() {
 				}
 
 				//Download rss and parse
-				scanRssMetier.ThreadEtudiant(client, e)
+				go scanRssMetier.ThreadEtudiant(client, e)
 
 				// Terminate early?
 				select {
@@ -98,9 +98,7 @@ func (scanRssMetier *ScanRssMetier) newScanRss() {
 	}
 
 	// Check whether any goroutines failed.
-	if err := g.Wait(); err != nil {
-		panic(err)
-	}
+	g.Wait()
 }
 
 /*func (scanRssMetier *ScanRssMetier) scanRss() {
