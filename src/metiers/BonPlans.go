@@ -75,6 +75,20 @@ func (*BonPlansMetier) Add (client *elastic.Client, idEntreprise string, bonplan
 		return errors.New("Vous devez saisir un titre")
 	}
 
+	if len(bonplan.Source.IdCategorie) == 0 {
+		return errors.New("Erreur lors de la récupération de la catégorie d'annonce")
+	}
+
+	//On regarde si la catégorie d'annonce existe
+	exist, err := new(CategorieAnnonceMetier).Exist(client, bonplan.Source.IdCategorie)
+	if err != nil {
+		return err
+	}
+
+	if !exist {
+		return errors.New("Erreur lors de la récupération de la catégorie d'annonce")
+	}
+
 	//On affecte les propriétés
 	bonplan.Source.NomEnreprise = entreprise.Source.NomEntreprise
 	bonplan.Source.LogoEntreprise = entreprise.Source.LogoEntreprise

@@ -72,6 +72,7 @@ func main() {
 	suggestionController := new(controllers.SuggestionController)
 	problemeTechniqueController := new(controllers.ProblemeTechniqueController)
 	entrepriseController := new(controllers.EntrepriseController)
+	categorieAnnonceController := new(controllers.CategorieAnnonceController)
 
 	//Etudiant auth sans JWT
 	e.POST("/login", etudiantController.Login)
@@ -80,6 +81,10 @@ func main() {
 	//Entreprise auth sans JWT
 	e.POST("/entreprise/login", entrepriseController.Login)
 	e.POST("/entreprise/register", entrepriseController.Register)
+
+	//Catégorie annonce API
+	categorieAnnonceApi := e.Group("/categorie_annonce")
+	categorieAnnonceApi.GET("", categorieAnnonceController.FindAll)
 
 	//Définition de l'api de base avec restriction JWT
 	api := e.Group("/api")
