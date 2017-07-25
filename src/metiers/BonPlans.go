@@ -25,6 +25,25 @@ func (*BonPlansMetier) Find (client *elastic.Client, offset int) ([]*models.BonP
 	return bonplans, nil
 }
 
+func (*BonPlansMetier) FindRecent (client *elastic.Client, date string) ([]*models.BonPlan, error) {
+	if client == nil {
+		return nil, errors.New("Erreur lors de la connexion à notre base de donnée")
+	}
+
+	if len(date) == 0 {
+		return nil, errors.New("Erreur lors de la récupération de la date")
+	}
+
+	//On récup les bon plans
+	bonplans, err := new(daos.BonPlansDao).FindRecent(client, date)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return bonplans, nil
+}
+
 func (*BonPlansMetier) FindByEntreprise (client *elastic.Client, idEntreprise string, offset int) ([]*models.BonPlan, error) {
 	if client == nil {
 		return nil, errors.New("Erreur lors de la connexion à notre base de donnée")

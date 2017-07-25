@@ -6,7 +6,6 @@ import (
 	"tomuss_server/src/metiers"
 	"tomuss_server/src/models"
 	"strconv"
-	"fmt"
 )
 
 type BonPlansController struct {}
@@ -25,6 +24,19 @@ func (*BonPlansController) Find (c echo.Context) error {
 	}
 
 	bonplans, err := new(metiers.BonPlansMetier).Find(client, offsetInt)
+	if err != nil {
+		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})
+	}
+
+	return c.JSON(200, bonplans)
+}
+
+func (*BonPlansController) FindRecent (c echo.Context) error {
+	client := tools.CreateElasticsearchClient()
+
+	date := c.Param("date")
+
+	bonplans, err := new(metiers.BonPlansMetier).FindRecent(client, date)
 	if err != nil {
 		return c.JSON(403, models.JsonErrorResponse{Error: err.Error()})
 	}
@@ -60,7 +72,6 @@ func (*BonPlansController) Add (c echo.Context) error {
 	bonplans := new(models.BonPlan)
 
 	if err := c.Bind(bonplans); err != nil {
-		fmt.Println(err.Error())
 		return c.JSON(403, models.JsonErrorResponse{Error: "Erreur lors de la récupération des informations"})
 	}
 

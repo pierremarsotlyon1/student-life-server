@@ -105,6 +105,7 @@ func main() {
 	//Api bon plans
 	bonPlansApi := api.Group("/bonplans")
 	bonPlansApi.GET("", bonPlansController.Find)
+	bonPlansApi.GET("/recent/:date", bonPlansController.FindRecent)
 
 	//Api calendar
 	calendarApi := api.Group("/calendar")

@@ -18,6 +18,46 @@ func (*BonPlansDao) Find(client *elastic.Client, offset int) ([]*models.BonPlan,
 		Type("bonplans").
 		From(offset).
 		Query(rangeQuery).
+		Sort("date_debut", true).
+		Pretty(true).
+		Do(context.Background())
+
+	if err != nil || results == nil {
+		return nil, errors.New("Erreur lors de la récupération des bon plans")
+	}
+
+	var bonplans []*models.BonPlan
+
+	if results.Hits.TotalHits == 0 {
+		return bonplans, nil
+	}
+
+	for _, hit := range results.Hits.Hits {
+		bytes, err := json.Marshal(hit)
+
+		if err != nil {
+			return nil, errors.New("Erreur lors de la récupération des bon plans")
+		}
+
+		bonplan := new(models.BonPlan)
+
+		if err := json.Unmarshal(bytes, bonplan); err != nil {
+			return nil, errors.New("Erreur lors de la récupération des bon plans")
+		}
+
+		bonplans = append(bonplans, bonplan)
+	}
+
+	return bonplans, nil
+}
+
+func (*BonPlansDao) FindRecent(client *elastic.Client, date string) ([]*models.BonPlan, error) {
+	rangeQuery := elastic.NewRangeQuery("date_debut").Lt(date).Gte(time.Now().UTC().Format("2006-01-02"))
+	results, err := client.Search().
+		Index(index).
+		Type("bonplans").
+		Query(rangeQuery).
+		Sort("date_debut", true).
 		Pretty(true).
 		Do(context.Background())
 
