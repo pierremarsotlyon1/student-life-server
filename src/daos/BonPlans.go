@@ -12,12 +12,18 @@ import (
 type BonPlansDao struct{}
 
 func (*BonPlansDao) Find(client *elastic.Client, offset int) ([]*models.BonPlan, error) {
-	rangeQuery := elastic.NewRangeQuery("date_debut").Gte(time.Now().UTC().Format("2006-01-02"))
+	dateNow := time.Now().UTC().Format("2006-01-02")
+
+	rangeQueryDateDebut := elastic.NewRangeQuery("date_debut").Lte(dateNow)
+	rangeQueryDateFin := elastic.NewRangeQuery("date_fin").Gte(dateNow)
+
+	globalQuery := elastic.NewBoolQuery().Must(rangeQueryDateDebut, rangeQueryDateFin)
+
 	results, err := client.Search().
 		Index(index).
 		Type("bonplans").
 		From(offset).
-		Query(rangeQuery).
+		Query(globalQuery).
 		Sort("date_debut", true).
 		Pretty(true).
 		Do(context.Background())

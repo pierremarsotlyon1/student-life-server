@@ -213,3 +213,23 @@ func (entrepriseMetier *EntrepriseMetier) Profile(client *elastic.Client, idEntr
 
 	return entreprise, nil
 }
+
+func (*EntrepriseMetier) UpdateUrlLogo (client *elastic.Client, idEntreprise string, urlLogo string) error {
+	if client == nil {
+		return errors.New("Erreur lors de la connexion à notre base de donnée")
+	}
+
+	if len(idEntreprise) == 0 {
+		return errors.New("Erreur lors de la récupération de votre identifiant")
+	}
+
+	if !govalidator.IsURL(urlLogo) {
+		return errors.New("L'url de votre logo est mal formatée")
+	}
+
+	if err := new(daos.EntrepriseDao).UpdateUrlLogo(client, idEntreprise, urlLogo); err != nil {
+		return err
+	}
+
+	return nil
+}

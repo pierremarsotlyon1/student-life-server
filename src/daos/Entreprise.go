@@ -30,16 +30,32 @@ func (*EntrepriseDao) Add(client *elastic.Client, entreprise *models.Entreprise)
 	return nil
 }
 
-func (*EntrepriseDao) GetByEmail (client *elastic.Client, email string) (*models.Entreprise, error) {
+func (*EntrepriseDao) UpdateUrlLogo(client *elastic.Client, idEntreprise string, urlLogo string) error {
+	_, err := client.Update().
+		Index(index).
+		Type("entreprise").
+		Id(idEntreprise).
+		Script(elastic.NewScriptInline("ctx._source.logo_entreprise = params.urlLogo").
+		Param("urlLogo", urlLogo)).
+		Do(context.Background())
+
+	if err != nil {
+		return errors.New("Erreur lors de la sauvegarde de votre logo")
+	}
+
+	return nil
+}
+
+func (*EntrepriseDao) GetByEmail(client *elastic.Client, email string) (*models.Entreprise, error) {
 
 	matchQuery := elastic.NewMatchQuery("email", email)
 
 	results, err := client.Search().
-	Index(index).
-	Type("entreprise").
-	Query(matchQuery).
-	Pretty(true).
-	Do(context.Background())
+		Index(index).
+		Type("entreprise").
+		Query(matchQuery).
+		Pretty(true).
+		Do(context.Background())
 
 	if err != nil {
 		return nil, errors.New("Erreur lors de la récupération de votre compte")

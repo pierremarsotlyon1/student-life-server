@@ -120,10 +120,13 @@ func main() {
 	problemeTechniqueApi := api.Group("/probleme/technique")
 	problemeTechniqueApi.POST("", problemeTechniqueController.Add)
 
+	//Entreprise API
 	entrepriseApi := api.Group("/entreprise")
 	entrepriseApi.GET("", entrepriseController.Profile)
 	entrepriseApi.PUT("", entrepriseController.UpdateInformations)
+	entrepriseApi.PUT("/logo", entrepriseController.UpdateUrlLogo)
 
+	//Bon plans entreprise API
 	bonPlansEntreprise := entrepriseApi.Group("/bonsplans")
 	bonPlansEntreprise.POST("", bonPlansController.Add)
 	bonPlansEntreprise.GET("", bonPlansController.FindByEntreprise)

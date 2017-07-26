@@ -5,7 +5,9 @@ import (
 	"tomuss_server/src/models"
 	"errors"
 	"tomuss_server/src/daos"
+	"github.com/go-shadow/moment"
 	"time"
+	"github.com/asaskevich/govalidator"
 )
 
 type BonPlansMetier struct {}
@@ -82,20 +84,18 @@ func (*BonPlansMetier) Add (client *elastic.Client, idEntreprise string, bonplan
 		return errors.New("Erreur lors de la récupération du compte de l'entreprise")
 	}
 
-	if len(bonplan.Source.DateDebut) == 0 {
-		return errors.New("Vous devez saisir une date de fin")
-	}
-
-	if len(bonplan.Source.DateFin) == 0 {
-		return errors.New("Vous devez saisir une date de fin")
-	}
-
 	if len(bonplan.Source.Title) == 0 {
 		return errors.New("Vous devez saisir un titre")
 	}
 
 	if len(bonplan.Source.IdCategorie) == 0 {
 		return errors.New("Erreur lors de la récupération de la catégorie d'annonce")
+	}
+
+	if len(bonplan.Source.Url) > 0 {
+		if !govalidator.IsURL(bonplan.Source.Url) {
+			return errors.New("L'url n'est pas au bon format")
+		}
 	}
 
 	//On regarde si la catégorie d'annonce existe
@@ -109,9 +109,12 @@ func (*BonPlansMetier) Add (client *elastic.Client, idEntreprise string, bonplan
 	}
 
 	//On affecte les propriétés
+	m := moment.New()
 	bonplan.Source.NomEnreprise = entreprise.Source.NomEntreprise
 	bonplan.Source.LogoEntreprise = entreprise.Source.LogoEntreprise
-	bonplan.Source.Created = time.Now().UTC().Format(time.RFC3339)
+	bonplan.Source.Created = m.UTC().FormatGo(time.RFC3339)
+	bonplan.Source.DateDebut = m.Format("YYYY-MM-DD")
+	bonplan.Source.DateFin = m.AddMonths(1).Format("YYYY-MM-DD")
 
 	if err := new(daos.BonPlansDao).Add(client, idEntreprise, bonplan); err != nil {
 		return err
