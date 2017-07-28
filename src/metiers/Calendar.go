@@ -135,6 +135,7 @@ func (*CalendarMetier) ParseIcs(client *elastic.Client, idUser string, urlIcs st
 		for _, e := range calendar.GetEvents() {
 			event := new(models.Event)
 
+			event.Location = e.GetLocation()
 			event.Titre = e.GetSummary()
 			event.Description = e.GetDescription()
 			event.DateDebut = e.GetStart().Format(time.RFC3339)
