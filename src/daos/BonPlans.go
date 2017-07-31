@@ -24,7 +24,7 @@ func (*BonPlansDao) Find(client *elastic.Client, offset int) ([]*models.BonPlan,
 		Type("bonplans").
 		From(offset).
 		Query(globalQuery).
-		Sort("date_debut", true).
+		Sort("date_debut", false).
 		Pretty(true).
 		Do(context.Background())
 
