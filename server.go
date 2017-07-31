@@ -73,6 +73,8 @@ func main() {
 	problemeTechniqueController := new(controllers.ProblemeTechniqueController)
 	entrepriseController := new(controllers.EntrepriseController)
 	categorieAnnonceController := new(controllers.CategorieAnnonceController)
+	jobController := new(controllers.JobController)
+	contratTravailController := new(controllers.ContratTravailController)
 
 	//Etudiant auth sans JWT
 	e.POST("/login", etudiantController.Login)
@@ -81,6 +83,10 @@ func main() {
 	//Entreprise auth sans JWT
 	e.POST("/entreprise/login", entrepriseController.Login)
 	e.POST("/entreprise/register", entrepriseController.Register)
+
+	//Contrat travail API
+	contratTravailApi := e.Group("/contrat_travail")
+	contratTravailApi.GET("", contratTravailController.FindAll)
 
 	//Catégorie annonce API
 	categorieAnnonceApi := e.Group("/categorie_annonce")
@@ -131,6 +137,14 @@ func main() {
 	bonPlansEntreprise.POST("", bonPlansController.Add)
 	bonPlansEntreprise.GET("", bonPlansController.FindByEntreprise)
 	bonPlansEntreprise.DELETE("/:id", bonPlansController.Remove)
+
+	//Job API
+	jobApi := api.Group("/jobs")
+	jobApi.GET("/date", jobController.FindByDate)
+	jobApi.GET("/entreprise", jobController.FindByIdEntreprise)
+	jobApi.POST("", jobController.Add)
+	jobApi.PUT("/:id", jobController.Update)
+	jobApi.DELETE("/:id", jobController.Remove)
 
 	//Go routine pour scanner les rSS
 	go new(metiers.ScanRssMetier).Start()
