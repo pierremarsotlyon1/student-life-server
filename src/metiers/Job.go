@@ -20,7 +20,8 @@ func (*JobMetier) Add (client *elastic.Client, idEntreprise string, job *models.
 	}
 
 	//On vérifie que ce soit bien une entreprise
-	if entreprise, err := new(EntrepriseMetier).GetById(client, idEntreprise); err != nil || entreprise == nil {
+	entreprise, err := new(EntrepriseMetier).GetById(client, idEntreprise)
+	if err != nil || entreprise == nil {
 		return errors.New("Erreur lors de la récupération de votre compte")
 	}
 
@@ -51,6 +52,8 @@ func (*JobMetier) Add (client *elastic.Client, idEntreprise string, job *models.
 	job.Source.IdEntreprise = idEntreprise
 	job.Source.Created = moment.New().Format("YYYY-MM-DD")
 	job.Source.TypeContrat = contratTravail.Source.NomContratTravail
+	job.Source.LogoEntreprise = entreprise.Source.LogoEntreprise
+	job.Source.NomEntreprise = entreprise.Source.NomEntreprise
 
 	if err := new(daos.JobDao).Add(client, job); err != nil {
 		return err
